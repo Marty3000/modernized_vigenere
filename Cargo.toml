@@ -1,11 +1,10 @@
 [package]
 name = "modernized_vigenere"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Marty3000"]
 description = "A modernized Vigenere algorithm"
 license = "MIT"
-license-file = "LICENSE.txt"
 repository = "https://github.com/Marty3000/modernized_vigenere.git"
 documentation = "https://docs.rs/modernized_vigenere"
 keywords = ["crypto", "encryption", "rustcrypto", "vigenere"]

@@ -4,6 +4,8 @@
 //! Therefore, instead of shifting the letters of the alphabet, we will shift every single byte.\
 //! That's why this lib is capable to encrypt/decrypt any file:\
 //! Not only ASCII-files, but also pictures, data or even binaries.
+#![forbid(unsafe_code)]
+
 use std::fs::File;
 use std::io;
 use std::io::prelude::*;
@@ -45,31 +47,38 @@ fn worker(
     let mut f = match File::open(in_file) {
         Ok(file) => file,
         Err(error) => {
-            println!("Problem opening the file: {:?}", error);
+            println!("Problem opening the file {}: {:?}", in_file, error);
             return Err(error);
         }
     };
     let mut buff = [0; BUFFSIZE];
     let mut offset: usize = 0;
-    let mut n = f.read(&mut buff)?;
     let g = match File::create(out_file) {
         Ok(file) => file,
         Err(error) => {
-            println!("Problem opening the file: {:?}", error);
+            println!("Problem opening the file {}: {:?}", out_file, error);
             return Err(error);
         }
     };
     let mut writer = BufWriter::new(g);
+    let mut n = f.read(&mut buff)?;
     while 0 < n {
         for i in 0..n {
-            buff[i] = func(&buff[i], &pass[(i + offset) % pass.len()]);
+            buff[i] = func(&buff[i], &pass[offset]);
+            offset = (offset + 1) % pass.len();
         }
-        offset = (offset + n) % pass.len();
         if n == BUFFSIZE {
-            writer.write_all(&buff)?;
+            //writer.write_all(&buff)?;
+            match writer.write_all(&buff) {
+                Ok(_) => (),
+                _ => println!("Problem witing to file {}.", out_file),
+            };
         } else {
-            for i in 0..n {
-                writer.write(&[buff[i]])?;
+            for b in buff.iter().take(n) {
+                match writer.write(&[*b]) {
+                    Ok(1) => (),
+                    _ => println!("Problem witing to file {}.", out_file),
+                };
             }
         }
         n = f.read(&mut buff)?;
