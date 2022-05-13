@@ -29,6 +29,21 @@ fn enc(b: &u8, p: &u8) -> u8 {
     ((*b as u16 + *p as u16) % 256) as u8
 }
 
+/// create the pass-vector
+/// 
+/// input parameter: &str
+///     can be the path to a file (which will be used as a pass-phrase),
+///     or a passphrase, itself
+/// output parameter: Vec<u8>
+fn mk_pass(pphrase: &str) -> Vec<u8> {
+    let bytes = std::fs::read(pphrase);
+    let pass: Vec<u8> = match bytes {
+        Ok(b) => b,
+        Err(_) => pphrase.as_bytes().to_vec(),
+    };
+    pass
+}
+
 /// shift all bytes
 ///
 /// input parameter:
@@ -42,7 +57,7 @@ fn worker(
     out_file: &str,
     func: &dyn Fn(&u8, &u8) -> u8,
 ) -> io::Result<()> {
-    let pass: &[u8] = passphrase.as_bytes();
+    let pass: Vec<u8> = mk_pass(passphrase);
 
     let mut f = match File::open(in_file) {
         Ok(file) => file,

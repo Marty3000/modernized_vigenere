@@ -1,6 +1,6 @@
 [package]
 name = "modernized_vigenere"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["Marty3000"]
 description = "A modernized Vigenere algorithm"
